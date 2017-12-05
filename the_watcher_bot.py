@@ -1,5 +1,6 @@
 import os
 import praw
+import re
 import time
 
 REPLY_MESSAGE = "Thanks for calling me!"
@@ -29,11 +30,11 @@ def run_bot(reddit):
     print("Obtaining comments...")
     subreddit = reddit.subreddit("test")
     for comment in subreddit.comments(limit=25):
-        if "The Watcher Bot:" in comment.body and comment.id not in comments_replied_to:
+        if re.search("the watcher bot:", comment.body, re.IGNORECASE) and comment.id not in comments_replied_to:
             print("String with keyword found in comment {}".format(comment.id))
             comment.reply(REPLY_MESSAGE)
             comments_replied_to.append(comment.id)
-            
+
     with open("comments_replied_to.txt", "w") as f:
         for comment_id in comments_replied_to:
             f.write(comment_id + "\n")
