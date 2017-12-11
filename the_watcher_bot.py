@@ -1,9 +1,15 @@
+import the_watcher_bot.config
+import json
 import os
 import praw
 import re
+import requests
 import time
 
 REPLY_MESSAGE = "Thanks for calling me!"
+
+MARVEL_API_TOKEN = the_watcher_bot.config.marvel_api_key
+MARVEL_API_BASE_URL = "https://gateway.marvel.com"
 
 def authenticate():
     print("Authenticating...")
@@ -12,6 +18,9 @@ def authenticate():
         user_agent="the_watcher_bot v0.1")
     print("Authenticated as {}".format(reddit.user.me()))
     return reddit
+
+def send_marvel_request():
+
 
 def main():
     reddit = authenticate()
