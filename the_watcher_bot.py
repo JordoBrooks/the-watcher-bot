@@ -8,7 +8,8 @@ import time
 
 REPLY_MESSAGE = "Thanks for calling me!"
 
-MARVEL_API_TOKEN = the_watcher_bot.config.marvel_api_key
+MARVEL_API_PUBLIC_KEY = the_watcher_bot.config.marvel_api_public_key
+MARVEL_API_PRIVATE_KEY = the_watcher_bot.config.marvel_api_private_key
 MARVEL_API_BASE_URL = "https://gateway.marvel.com"
 
 def authenticate():
