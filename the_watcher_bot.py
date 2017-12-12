@@ -20,13 +20,28 @@ def authenticate():
     print("Authenticated as {}".format(reddit.user.me()))
     return reddit
 
+
+def fetch_character_info(character):
+    return
+
+
+def handle_request_from_user(character):
+    # Make API request to Marvel to get character info (ID, description, etc.)
+    response1 = fetch_character_info(character)
+
+    # We set a 1 result limit on the request so the first character ID is the one we want
+    id = response1['data']['results'][0]['id']
+
+
 def send_marvel_request():
+    return
 
 
 def main():
     reddit = authenticate()
     while True:
         run_bot(reddit)
+
 
 def run_bot(reddit):
     if not os.path.isfile("comments_replied_to.txt"):
@@ -51,6 +66,7 @@ def run_bot(reddit):
 
     print("Sleeping...")
     time.sleep(10)
+
 
 if __name__ == "__main__":
     main()
