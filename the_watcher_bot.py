@@ -11,17 +11,26 @@ REPLY_MESSAGE = "Thanks for calling me!"
 MARVEL_API_PUBLIC_KEY = the_watcher_bot.config.marvel_api_public_key
 MARVEL_API_PRIVATE_KEY = the_watcher_bot.config.marvel_api_private_key
 MARVEL_API_BASE_URL = "https://gateway.marvel.com"
+RESULTS_TO_RETURN = 10
 
 def authenticate():
     print("Authenticating...")
     reddit = praw.Reddit(
-        'the_watcher_bot',
-        user_agent="the_watcher_bot v0.1")
+        "the_watcher_bot",
+        user_agent = "the_watcher_bot v0.1")
     print("Authenticated as {}".format(reddit.user.me()))
     return reddit
 
 
+def build_comment(character, series_dict):
+    return
+
+
 def fetch_character_info(character):
+    return
+
+
+def fetch_series_info(char_id):
     return
 
 
@@ -30,7 +39,20 @@ def handle_request_from_user(character):
     response1 = fetch_character_info(character)
 
     # We set a 1 result limit on the request so the first character ID is the one we want
-    id = response1['data']['results'][0]['id']
+    id = response1["data"]["results"][0]["id"]
+
+    # Make API request to marvel for
+    response2 = fetch_series_info(id)
+
+    series_dict = {}
+
+    for i in range(RESULTS_TO_RETURN):
+        series = response2["data"]["results"][i]["title"]
+        url = response2["data"]["results"][i]["urls"][0]["url"]
+        series_dict[series] = url
+
+    # Build the comment and return it
+    return build_comment(character, series_dict)
 
 
 def send_marvel_request():
