@@ -14,7 +14,8 @@ MARVEL_API_PRIVATE_KEY = the_watcher_bot.config.marvel_api_private_key
 
 MARVEL_API_BASE_URL = "https://gateway.marvel.com"
 MARVEL_CHAR_URL = "/v1/public/characters"
-MARVEL_EVENTS_URL =
+MARVEL_EVENTS_URL_PREFIX = "/v1/public/characters/"
+MARVEL_EVENTS_URL_POSTFIX = "/events"
 
 CHAR_RESULTS_TO_RETURN = 1
 EVENT_RESULTS_TO_RETURN = 10
@@ -49,8 +50,23 @@ def fetch_character_info(character):
     return response
 
 
-def fetch_series_info(char_id):
+def fetch_event_info(char_id):
+    # time stamp for use with Marvel API
+    ts = time.time()
 
+    # Build md5 hash of ts + publickey + privatekey for use with Marvel API
+    md5 = hashlib.md5()
+    md5.update(ts + MARVEL_API_PUBLIC_KEY + MARVEL_API_PRIVATE_KEY)
+    hash = md5.digest()
+
+    url = MARVEL_EVENTS_URL_PREFIX + str(char_id) + MARVEL_EVENTS_URL_POSTFIX
+
+    query_dict = {"ts": ts, "hash": hash, "limit": EVENT_RESULTS_TO_RETURN, "orderBy": "-startDate"}
+
+    # Make request to API
+    response = requests.get(url, params=query_dict)
+
+    return response
 
 
 def handle_request_from_user(character):
@@ -64,10 +80,11 @@ def handle_request_from_user(character):
     char_url = response1["data"]["results"][0]["urls"][1]["url"]
 
     # Make API request to marvel for
-    response2 = fetch_series_info(id)
+    response2 = fetch_event_info(id)
 
     series_dict = {}
 
+    # Extract the events returned (title and url)
     for i in range(EVENT_RESULTS_TO_RETURN):
         series = response2["data"]["results"][i]["title"]
         url = response2["data"]["results"][i]["urls"][0]["url"]
