@@ -14,11 +14,10 @@ MARVEL_API_PRIVATE_KEY = the_watcher_bot.config.marvel_api_private_key
 
 MARVEL_API_BASE_URL = "https://gateway.marvel.com"
 MARVEL_CHAR_URL = "/v1/public/characters"
-MARVEL_EVENTS_URL_PREFIX = "/v1/public/characters/"
-MARVEL_EVENTS_URL_POSTFIX = "/events"
+MARVEL_SERIES_URL = "/v1/public/characters/{}/series"
 
 CHAR_RESULTS_TO_RETURN = 1
-EVENT_RESULTS_TO_RETURN = 10
+SERIES_RESULTS_TO_RETURN = 10
 
 def authenticate():
     print("Authenticating...")
@@ -30,7 +29,13 @@ def authenticate():
 
 
 def build_comment(character, char_url, series_dict):
-    return
+    comment = ("The character you've requested is {}.\n\n"
+               "You can read more of this character in the following series:\n\n").format(character)
+
+    for k, v in series_dict.items():
+        comment = comment + "{}\n".format(k)
+
+    return comment
 
 
 def fetch_character_info(character):
@@ -50,7 +55,7 @@ def fetch_character_info(character):
     return response
 
 
-def fetch_event_info(char_id):
+def fetch_series_info(char_id):
     # time stamp for use with Marvel API
     ts = time.time()
 
@@ -59,9 +64,9 @@ def fetch_event_info(char_id):
     md5.update(ts + MARVEL_API_PUBLIC_KEY + MARVEL_API_PRIVATE_KEY)
     hash = md5.digest()
 
-    url = MARVEL_EVENTS_URL_PREFIX + str(char_id) + MARVEL_EVENTS_URL_POSTFIX
+    url = MARVEL_SERIES_URL.format(str(char_id))
 
-    query_dict = {"ts": ts, "hash": hash, "limit": EVENT_RESULTS_TO_RETURN, "orderBy": "-startDate"}
+    query_dict = {"ts": ts, "hash": hash, "limit": SERIES_RESULTS_TO_RETURN, "orderBy": "-startDate"}
 
     # Make request to API
     response = requests.get(url, params=query_dict)
@@ -80,12 +85,12 @@ def handle_request_from_user(character):
     char_url = response1["data"]["results"][0]["urls"][1]["url"]
 
     # Make API request to marvel for
-    response2 = fetch_event_info(id)
+    response2 = fetch_series_info(id)
 
     series_dict = {}
 
-    # Extract the events returned (title and url)
-    for i in range(EVENT_RESULTS_TO_RETURN):
+    # Extract the series returned (title and url)
+    for i in range(SERIES_RESULTS_TO_RETURN):
         series = response2["data"]["results"][i]["title"]
         url = response2["data"]["results"][i]["urls"][0]["url"]
         series_dict[series] = url
@@ -114,7 +119,7 @@ def run_bot(reddit):
     for comment in subreddit.comments(limit=25):
         if re.search("the watcher bot:", comment.body, re.IGNORECASE) and comment.id not in comments_replied_to:
             print("String with keyword found in comment {}".format(comment.id))
-            comment.reply(REPLY_MESSAGE)
+            comment.reply(handle_request_from_user("Wolverine"))
             comments_replied_to.append(comment.id)
 
     with open("comments_replied_to.txt", "w") as f:
