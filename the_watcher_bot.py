@@ -1,9 +1,10 @@
-import the_watcher_bot.config
+import hashlib
 import json
 import os
 import praw
 import re
 import requests
+import the_watcher_bot.config
 import time
 
 REPLY_MESSAGE = "Thanks for calling me!"
@@ -11,6 +12,7 @@ REPLY_MESSAGE = "Thanks for calling me!"
 MARVEL_API_PUBLIC_KEY = the_watcher_bot.config.marvel_api_public_key
 MARVEL_API_PRIVATE_KEY = the_watcher_bot.config.marvel_api_private_key
 MARVEL_API_BASE_URL = "https://gateway.marvel.com"
+MARVEL_CHAR_URL = "/v1/public/characters?"
 RESULTS_TO_RETURN = 10
 
 def authenticate():
@@ -27,7 +29,20 @@ def build_comment(character, series_dict):
 
 
 def fetch_character_info(character):
-    return
+    # time stamp for use with Marvel API
+    ts = time.time()
+
+    # Build md5 hash of ts + publickey + privatekey for use with Marvel API
+    md5 = hashlib.md5()
+    md5.update(ts + MARVEL_API_PUBLIC_KEY + MARVEL_API_PRIVATE_KEY)
+    hash = md5.digest()
+
+    query_dict = {"ts": ts, "hash": hash}
+
+    # Make request to API
+    response = requests.get(MARVEL_CHAR_URL, params=query_dict)
+
+    return response
 
 
 def fetch_series_info(char_id):
