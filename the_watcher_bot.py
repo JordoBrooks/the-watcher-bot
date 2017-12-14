@@ -11,9 +11,13 @@ REPLY_MESSAGE = "Thanks for calling me!"
 
 MARVEL_API_PUBLIC_KEY = the_watcher_bot.config.marvel_api_public_key
 MARVEL_API_PRIVATE_KEY = the_watcher_bot.config.marvel_api_private_key
+
 MARVEL_API_BASE_URL = "https://gateway.marvel.com"
-MARVEL_CHAR_URL = "/v1/public/characters?"
-RESULTS_TO_RETURN = 10
+MARVEL_CHAR_URL = "/v1/public/characters"
+MARVEL_EVENTS_URL =
+
+CHAR_RESULTS_TO_RETURN = 1
+EVENT_RESULTS_TO_RETURN = 10
 
 def authenticate():
     print("Authenticating...")
@@ -37,7 +41,7 @@ def fetch_character_info(character):
     md5.update(ts + MARVEL_API_PUBLIC_KEY + MARVEL_API_PRIVATE_KEY)
     hash = md5.digest()
 
-    query_dict = {"ts": ts, "hash": hash, "name": character}
+    query_dict = {"ts": ts, "hash": hash, "name": character, "limit": CHAR_RESULTS_TO_RETURN}
 
     # Make request to API
     response = requests.get(MARVEL_CHAR_URL, params=query_dict)
@@ -46,7 +50,7 @@ def fetch_character_info(character):
 
 
 def fetch_series_info(char_id):
-    return
+
 
 
 def handle_request_from_user(character):
@@ -64,7 +68,7 @@ def handle_request_from_user(character):
 
     series_dict = {}
 
-    for i in range(RESULTS_TO_RETURN):
+    for i in range(EVENT_RESULTS_TO_RETURN):
         series = response2["data"]["results"][i]["title"]
         url = response2["data"]["results"][i]["urls"][0]["url"]
         series_dict[series] = url
