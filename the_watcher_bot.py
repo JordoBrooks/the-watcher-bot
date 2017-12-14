@@ -37,7 +37,7 @@ def fetch_character_info(character):
     md5.update(ts + MARVEL_API_PUBLIC_KEY + MARVEL_API_PRIVATE_KEY)
     hash = md5.digest()
 
-    query_dict = {"ts": ts, "hash": hash}
+    query_dict = {"ts": ts, "hash": hash, "name": character}
 
     # Make request to API
     response = requests.get(MARVEL_CHAR_URL, params=query_dict)
