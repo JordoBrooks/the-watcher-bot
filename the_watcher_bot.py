@@ -4,13 +4,13 @@ import os
 import praw
 import re
 import requests
-import the_watcher_bot.config
+import config
 import time
 
 REPLY_MESSAGE = "Thanks for calling me!"
 
-MARVEL_API_PUBLIC_KEY = the_watcher_bot.config.marvel_api_public_key
-MARVEL_API_PRIVATE_KEY = the_watcher_bot.config.marvel_api_private_key
+MARVEL_API_PUBLIC_KEY = config.marvel_api_public_key
+MARVEL_API_PRIVATE_KEY = config.marvel_api_private_key
 
 MARVEL_API_BASE_URL = "https://gateway.marvel.com"
 MARVEL_CHAR_URL = "/v1/public/characters"
@@ -33,7 +33,7 @@ def build_comment(character, char_url, series_dict):
                "You can read more of this character in the following series:\n\n").format(character)
 
     for k, v in series_dict.items():
-        comment = comment + "{}\n".format(k)
+        comment = comment + "* {}\n".format(k)
 
     return comment
 
@@ -44,13 +44,14 @@ def fetch_character_info(character):
 
     # Build md5 hash of ts + publickey + privatekey for use with Marvel API
     md5 = hashlib.md5()
-    md5.update(ts + MARVEL_API_PUBLIC_KEY + MARVEL_API_PRIVATE_KEY)
-    hash = md5.digest()
+    md5.update((str(ts) + MARVEL_API_PRIVATE_KEY + MARVEL_API_PUBLIC_KEY).encode("utf-8"))
+    hash = md5.hexdigest()
+    print(hash)
 
-    query_dict = {"ts": ts, "hash": hash, "name": character, "limit": CHAR_RESULTS_TO_RETURN}
+    query_dict = {"apikey": MARVEL_API_PUBLIC_KEY, "ts": ts, "hash": hash, "name": character, "limit": CHAR_RESULTS_TO_RETURN}
 
     # Make request to API
-    response = requests.get(MARVEL_CHAR_URL, params=query_dict)
+    response = requests.get(MARVEL_API_BASE_URL + MARVEL_CHAR_URL, params=query_dict)
 
     return response
 
@@ -61,12 +62,13 @@ def fetch_series_info(char_id):
 
     # Build md5 hash of ts + publickey + privatekey for use with Marvel API
     md5 = hashlib.md5()
-    md5.update(ts + MARVEL_API_PUBLIC_KEY + MARVEL_API_PRIVATE_KEY)
-    hash = md5.digest()
+    md5.update((str(ts) + MARVEL_API_PRIVATE_KEY + MARVEL_API_PUBLIC_KEY).encode("utf-8"))
+    hash = md5.hexdigest()
+    print(hash)
 
-    url = MARVEL_SERIES_URL.format(str(char_id))
+    url = MARVEL_API_BASE_URL+ MARVEL_SERIES_URL.format(str(char_id))
 
-    query_dict = {"ts": ts, "hash": hash, "limit": SERIES_RESULTS_TO_RETURN, "orderBy": "-startDate"}
+    query_dict = {"apikey": MARVEL_API_PUBLIC_KEY, "ts": ts, "hash": hash, "limit": SERIES_RESULTS_TO_RETURN}
 
     # Make request to API
     response = requests.get(url, params=query_dict)
@@ -76,7 +78,9 @@ def fetch_series_info(char_id):
 
 def handle_request_from_user(character):
     # Make API request to Marvel to get character info (ID, description, etc.)
-    response1 = fetch_character_info(character)
+    response1 = fetch_character_info(character).text
+    # Convert response into JSON
+    response1 = json.loads(response1)
 
     # We set a 1 result limit on the request so the first character ID is the one we want
     id = response1["data"]["results"][0]["id"]
@@ -84,13 +88,17 @@ def handle_request_from_user(character):
     # Store the url for the character information page
     char_url = response1["data"]["results"][0]["urls"][1]["url"]
 
-    # Make API request to marvel for
-    response2 = fetch_series_info(id)
+    # Make API request to marvel for series info
+    response2 = fetch_series_info(id).text
+    # Convert response into JSON
+    response2 = json.loads(response2)
 
     series_dict = {}
 
     # Extract the series returned (title and url)
     for i in range(SERIES_RESULTS_TO_RETURN):
+        print(response2.keys())
+        print(response2["status"])
         series = response2["data"]["results"][i]["title"]
         url = response2["data"]["results"][i]["urls"][0]["url"]
         series_dict[series] = url
