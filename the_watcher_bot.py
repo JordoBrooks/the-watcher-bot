@@ -24,7 +24,7 @@ def authenticate():
     return reddit
 
 
-def build_comment(character, series_dict):
+def build_comment(character, char_url, series_dict):
     return
 
 
@@ -56,6 +56,9 @@ def handle_request_from_user(character):
     # We set a 1 result limit on the request so the first character ID is the one we want
     id = response1["data"]["results"][0]["id"]
 
+    # Store the url for the character information page
+    char_url = response1["data"]["results"][0]["urls"][1]["url"]
+
     # Make API request to marvel for
     response2 = fetch_series_info(id)
 
@@ -67,11 +70,7 @@ def handle_request_from_user(character):
         series_dict[series] = url
 
     # Build the comment and return it
-    return build_comment(character, series_dict)
-
-
-def send_marvel_request():
-    return
+    return build_comment(character, char_url, series_dict)
 
 
 def main():
