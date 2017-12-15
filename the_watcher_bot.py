@@ -29,11 +29,15 @@ def authenticate():
 
 
 def build_comment(character, char_url, series_dict):
-    comment = ("The character you've requested is {}.\n\n"
-               "You can read more of this character in the following series:\n\n").format(character)
+    # Escape closing brackets in url for Reddit comment compatibility
+    char_url = re.escape(char_url)
+    print(char_url)
+
+    comment = ("The character you've requested is [{}]({}).\n\n"
+               "You can read more of this character in the following series:\n\n").format(character, char_url)
 
     for k, v in series_dict.items():
-        comment = comment + "* {}\n".format(k)
+        comment = comment + "* [{}]({})\n".format(k, re.escape(v))
 
     return comment
 
