@@ -47,10 +47,13 @@ def extract_character(comment):
     comment = comment.lower()
 
     # Partition the comment around call to "The Watcher Bot:"
-    comment = comment.partition("the watcher bot:")
+    comment_partition = comment.partition("the watcher bot:")
 
     # Per bot contract, the character is the first word in quotation marks after the bot call
-    character = comment[2].strip.split("\"")[0]
+    character = comment_partition[2]
+    character = character.strip()
+    character = character.split("\"")
+    character = character[1].title()
 
     return character
 
