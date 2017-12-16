@@ -42,6 +42,19 @@ def build_comment(character, char_url, series_dict):
     return comment
 
 
+def extract_character(comment):
+    # Convert comment to lowercase
+    comment = comment.lower()
+
+    # Partition the comment around call to "The Watcher Bot:"
+    comment = comment.partition("the watcher bot:")
+
+    # Per bot contract, the character is the first word in quotation marks after the bot call
+    character = comment[2].strip.split("\"")[0]
+
+    return character
+
+
 def fetch_character_info(character):
     # time stamp for use with Marvel API
     ts = time.time()
@@ -131,7 +144,8 @@ def run_bot(reddit):
     for comment in subreddit.comments(limit=25):
         if re.search("the watcher bot:", comment.body, re.IGNORECASE) and comment.id not in comments_replied_to:
             print("String with keyword found in comment {}".format(comment.id))
-            comment.reply(handle_request_from_user("Wolverine"))
+            character = extract_character(comment.body)
+            comment.reply(handle_request_from_user(character))
             comments_replied_to.append(comment.id)
 
     with open("comments_replied_to.txt", "w") as f:
