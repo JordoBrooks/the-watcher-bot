@@ -54,7 +54,7 @@ def extract_character(comment):
     # Per bot contract, the character is the first word in quotation marks after the bot call
     character = comment_partition[2]
     character = character.strip()
-    character = character.split("\"")
+    character = character.split("\"")[1]
 
     return character
 
@@ -104,6 +104,7 @@ def handle_request_from_user(character):
     response1 = fetch_character_info(character).text
     # Convert response into JSON
     response1 = json.loads(response1)
+    print(response1)
 
     # We set a 1 result limit on the request so the first character ID is the one we want
     id = response1["data"]["results"][0]["id"]
@@ -154,6 +155,7 @@ def run_bot(reddit):
         if re.search("the watcher bot:", comment.body, re.IGNORECASE) and comment.id not in comments_replied_to:
             print("String with keyword found in comment {}".format(comment.id))
             character = extract_character(comment.body)
+            print(character)
             bot_reply = handle_request_from_user(character)
             comment.reply(bot_reply)
             comments_replied_to.append(comment.id)
