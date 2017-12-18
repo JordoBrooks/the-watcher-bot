@@ -53,7 +53,6 @@ def extract_character(comment):
     character = comment_partition[2]
     character = character.strip()
     character = character.split("\"")
-    character = character[1].title()
 
     return character
 
@@ -105,6 +104,9 @@ def handle_request_from_user(character):
     # We set a 1 result limit on the request so the first character ID is the one we want
     id = response1["data"]["results"][0]["id"]
 
+    # Save the Marvel-official name for bot reply
+    name = response1["data"]["results"][0]["name"]
+
     # Store the url for the character information page
     char_url = response1["data"]["results"][0]["urls"][1]["url"]
 
@@ -124,7 +126,7 @@ def handle_request_from_user(character):
         series_dict[series] = url
 
     # Build the comment and return it
-    return build_comment(character, char_url, series_dict)
+    return build_comment(name, char_url, series_dict)
 
 
 def main():
