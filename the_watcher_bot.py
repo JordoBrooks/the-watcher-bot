@@ -150,7 +150,8 @@ def run_bot(reddit):
         if re.search("the watcher bot:", comment.body, re.IGNORECASE) and comment.id not in comments_replied_to:
             print("String with keyword found in comment {}".format(comment.id))
             character = extract_character(comment.body)
-            comment.reply(handle_request_from_user(character))
+            bot_reply = handle_request_from_user(character)
+            comment.reply(bot_reply)
             comments_replied_to.append(comment.id)
 
     with open("comments_replied_to.txt", "w") as f:
