@@ -28,7 +28,7 @@ def authenticate():
     return reddit
 
 
-def build_comment(character, char_url, series_dict):
+def build_comment(character, char_url, series_dict, attr_text):
     # Escape closing brackets in url for Reddit comment compatibility
     char_url = re.escape(char_url)
     print(char_url)
@@ -39,7 +39,7 @@ def build_comment(character, char_url, series_dict):
     for k, v in series_dict.items():
         comment += "* [{}]({})\n".format(k, re.escape(v))
 
-    comment += "\n***\n\n^(Data provided by Marvel. © 2014 Marvel)"
+    comment += "\n***\n\n^({})".format(attr_text)
 
     return comment
 
@@ -115,6 +115,9 @@ def handle_request_from_user(character):
     # Store the url for the character information page
     char_url = response1["data"]["results"][0]["urls"][1]["url"]
 
+    # Store attribution text
+    attr_text = response1["attributionText"]
+
     # Make API request to marvel for series info
     response2 = fetch_series_info(id).text
     # Convert response into JSON
@@ -131,7 +134,7 @@ def handle_request_from_user(character):
         series_dict[series] = url
 
     # Build the comment and return it
-    return build_comment(name, char_url, series_dict)
+    return build_comment(name, char_url, series_dict, attr_text)
 
 
 def main():
