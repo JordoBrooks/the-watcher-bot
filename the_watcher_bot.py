@@ -37,7 +37,9 @@ def build_comment(character, char_url, series_dict):
                "You can read more of this character in the following series:\n\n").format(character, char_url)
 
     for k, v in series_dict.items():
-        comment = comment + "* [{}]({})\n".format(k, re.escape(v))
+        comment += "* [{}]({})\n".format(k, re.escape(v))
+
+    comment += "* * *\n^^^(Data provided by Marvel. © 2014 Marvel)"
 
     return comment
 
