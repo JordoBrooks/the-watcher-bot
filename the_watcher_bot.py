@@ -62,10 +62,7 @@ def fetch_character_info(character):
     ts = time.time()
 
     # Build md5 hash of ts + publickey + privatekey for use with Marvel API
-    md5 = hashlib.md5()
-    md5.update((str(ts) + MARVEL_API_PRIVATE_KEY + MARVEL_API_PUBLIC_KEY).encode("utf-8"))
-    hash = md5.hexdigest()
-    print(hash)
+    hash = generate_hash(ts)
 
     query_dict = {"apikey": MARVEL_API_PUBLIC_KEY, "ts": ts, "hash": hash, "name": character, "limit": CHAR_RESULTS_TO_RETURN}
 
@@ -80,12 +77,9 @@ def fetch_series_info(char_id):
     ts = time.time()
 
     # Build md5 hash of ts + publickey + privatekey for use with Marvel API
-    md5 = hashlib.md5()
-    md5.update((str(ts) + MARVEL_API_PRIVATE_KEY + MARVEL_API_PUBLIC_KEY).encode("utf-8"))
-    hash = md5.hexdigest()
-    print(hash)
+    hash = generate_hash(ts)
 
-    url = MARVEL_API_BASE_URL+ MARVEL_SERIES_URL.format(str(char_id))
+    url = MARVEL_API_BASE_URL + MARVEL_SERIES_URL.format(str(char_id))
 
     query_dict = {"apikey": MARVEL_API_PUBLIC_KEY, "ts": ts, "hash": hash, "limit": SERIES_RESULTS_TO_RETURN}
 
@@ -93,6 +87,14 @@ def fetch_series_info(char_id):
     response = requests.get(url, params=query_dict)
 
     return response
+
+
+def generate_hash(time_stamp):
+    # Build md5 hash of ts + publickey + privatekey for use with Marvel API
+    md5 = hashlib.md5()
+    md5.update((str(time_stamp) + MARVEL_API_PRIVATE_KEY + MARVEL_API_PUBLIC_KEY).encode("utf-8"))
+    hash = md5.hexdigest()
+    return hash
 
 
 def handle_request_from_user(character):
