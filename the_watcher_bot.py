@@ -106,6 +106,8 @@ def handle_request_from_user(character):
     response1 = json.loads(response1)
     print(response1)
 
+    # TODO if response1['status'] != success, then raise an exception
+
     # We set a 1 result limit on the request so the first character ID is the one we want
     id = response1["data"]["results"][0]["id"]
 
@@ -159,7 +161,10 @@ def run_bot(reddit):
             print("String with keyword found in comment {}".format(comment.id))
             character = extract_character(comment.body)
             print(character)
+
+            # TODO try this:
             bot_reply = handle_request_from_user(character)
+            # TODO if you get an exception, leave a helpful comment
             comment.reply(bot_reply)
             comments_replied_to.append(comment.id)
 
