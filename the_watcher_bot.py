@@ -19,6 +19,10 @@ MARVEL_SERIES_URL = "/v1/public/characters/{}/series"
 CHAR_RESULTS_TO_RETURN = 1
 SERIES_RESULTS_TO_RETURN = 10
 
+GEN_ERR_MSG = "Something went wrong. I cannot see them."
+
+NO_CHAR_ERR_MSG = "Something is wrong. I do not know that person."
+
 def authenticate():
     print("Authenticating...")
     reddit = praw.Reddit(
@@ -52,9 +56,16 @@ def extract_character(comment):
     comment_partition = comment.partition("the watcher bot:")
 
     # Per bot contract, the character is the first word in quotation marks after the bot call
-    character = comment_partition[2]
-    character = character.strip()
-    character = character.split("\"")[1]
+    extracted_character_text = comment_partition[2]
+    extracted_character_text = extracted_character_text.strip()
+    extracted_character_text = extracted_character_text.split("\"")
+
+    # If our split character text has less than 3 pieces, than the input was invalid.
+    # Return empty string
+    if len(extracted_character_text) < 3:
+        return ""
+
+    character = extracted_character_text[1]
 
     return character
 
@@ -106,7 +117,15 @@ def handle_request_from_user(character):
     response1 = json.loads(response1)
     print(response1)
 
-    # TODO if response1['status'] != success, then raise an exception
+    # If the response code isn't 200, something went wrong
+    response_code = response1["code"]
+    if response_code != 200:
+        return GEN_ERR_MSG
+
+    # If 0 characters are returned, then the Marvel API doesn't know who that is
+    num_characters_returned = len(response1["data"]["results"])
+    if num_characters_returned == 0:
+        return NO_CHAR_ERR_MSG
 
     # We set a 1 result limit on the request so the first character ID is the one we want
     id = response1["data"]["results"][0]["id"]
@@ -162,9 +181,7 @@ def run_bot(reddit):
             character = extract_character(comment.body)
             print(character)
 
-            # TODO try this:
             bot_reply = handle_request_from_user(character)
-            # TODO if you get an exception, leave a helpful comment
             comment.reply(bot_reply)
             comments_replied_to.append(comment.id)
 
