@@ -189,8 +189,9 @@ def run_bot(reddit):
         for comment_id in comments_replied_to:
             f.write(comment_id + "\n")
 
-    print("Sleeping...")
-    time.sleep(10)
+    # put bot to sleep for 60 seconds to ensure never exceeding API daily request limit
+    print("Sleeping for 1 min...")
+    time.sleep(60)
 
 
 if __name__ == "__main__":
