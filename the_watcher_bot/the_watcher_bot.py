@@ -7,8 +7,6 @@ import requests
 import config
 import time
 
-REPLY_MESSAGE = "Thanks for calling me!"
-
 MARVEL_API_PUBLIC_KEY = config.marvel_api_public_key
 MARVEL_API_PRIVATE_KEY = config.marvel_api_private_key
 
