@@ -1,3 +1,5 @@
+# THE WATCHER BOT
+
 The Watchers are one of the Marvel universe's oldest species, committed to observing and compiling knowledge on all aspects of the universe.
 
 The Watcher Bot is a reddit bot that, when summoned, provides the last 10 comic series that a particular character has appeared in. To learn more about a character:
